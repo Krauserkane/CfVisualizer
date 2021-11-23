@@ -1,8 +1,10 @@
 const api="https://codeforces.com/api/";
 const main=document.querySelector('#main')
+const problemlink="https://codeforces.com/problemset/problem/";
 document.querySelector('.btn').addEventListener('click',setName);
 
 var handle="";
+var problemData;
 function setName(e){
     e.preventDefault();
     handle=document.form.username.value;
@@ -17,6 +19,7 @@ function setName(e){
     })
     const sub=api+"/user.status?handle="+handle+"&from=1&count=3000";
     axios.get(sub).then(data=>{
+        problemData=data.data.result;
         showProblems(data.data.result);
        topicvis(data.data.result);
     })    
@@ -282,11 +285,90 @@ const myChart = new Chart(ctx, {
     }
 });
 
+    document.querySelector('.table2').innerHTML="";
+    const search_problems_element=document.createElement('div');
+    search_problems_element.classList.add('search-problem');
+    search_problems_element.innerHTML=` <h3>Search Problems</h3>
     
-    
-}
-/*Everything related to the handle
- 
-   
+    <form action="" name="problemForm">
+        <label for="">Rating</label>
+        <select name="rating" id="rating">
+            <option value="all">All</option>
+            <option value="800">800</option>
+            <option value="900">900</option>
+            <option value="1000">1000</option>
+            <option value="1200">1200</option>
+            <option value="1300">1300</option>
+            <option value="1400">1400</option>
+            <option value="1500">1500</option>
+            <option value="1600">1600</option>
+            <option value="1700">1700</option>
+            <option value="1800">1800</option>
+            <option value="1900">1900</option>
+            <option value="2000">2000</option>
+        </select>
 
-*/
+
+        <label for="">Tag</label>
+        <select name="tag" id="tag">
+            <option value="none">none</option>
+            <option value="binary search">Binarysearch</option>
+            <option value="dp">Dp</option>
+            <option value="greedy">Greedy</option>
+            <option value="combinatorics">combinatorics</option>
+            <option value="graphs">graphs</option>
+            <option value="trees">trees</option>
+            <option value="maths">maths</option>
+            <option value="implementation">implementation</option>
+            <option value="data structures">Data structures</option>
+        </select>
+
+        <input type="submit" class="problemButton">
+    </form>`;
+    
+   document.querySelector('.table2').append(search_problems_element);
+   document.querySelector('.problemButton').addEventListener('click',searchForProblems);
+}
+
+
+function searchForProblems(e){
+    e.preventDefault();
+    document.querySelector('.display_problems').innerHTML="";
+    rating=document.problemForm.rating.value;
+    tag=document.problemForm.tag.value;
+    let problems=[];
+    let links=[];
+    if(rating=="All" && tag=="none")return;
+    for(var x=0;x<problemData.length;x++){
+        if(problemData[x].verdict=="OK"){
+            if(problemData[x].problem.rating==rating){
+                let topics=problemData[x].problem.tags;
+                if(tag=="none" || topics.includes(tag)){
+                   problems.push(problemData[x].problem.name);
+                   var link_to_problem=problemlink+"/"+problemData[x].problem.contestId+"/"+problemData[x].problem.index;
+                   links.push(link_to_problem);
+                }
+            }
+        }
+    }
+    
+    
+    let problem_element=document.createElement('div');
+    problem_element.classList.add('table2');
+    problem_element.innerHTML=` <div class="heading2">
+                                <p class="f">Problem Name</p>
+                                <p class="s">Link</p>
+                                </div>`
+    document.querySelector('.display_problems').append(problem_element);
+    for(var k=0;k<problems.length;k++){
+        let current_problem=document.createElement('div');
+        current_problem.classList.add('problem');
+        if(k%2!=0){
+            current_problem.classList.add('ac');
+        }
+        current_problem.innerHTML=`<p class="f">${problems[k]}</p>
+                                   <a href="${links[k]}"><p class="s">link</p></a>`;
+
+        problem_element.append(current_problem);
+    }
+}
