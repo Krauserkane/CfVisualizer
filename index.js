@@ -338,7 +338,10 @@ function searchForProblems(e){
     tag=document.problemForm.tag.value;
     let problems=[];
     let links=[];
-    if(rating=="All" && tag=="none")return;
+    console.log(rating,tag);
+    if(rating=="all" && tag=="none"){
+        return;
+    }
     for(var x=0;x<problemData.length;x++){
         if(problemData[x].verdict=="OK"){
             if(problemData[x].problem.rating==rating){
